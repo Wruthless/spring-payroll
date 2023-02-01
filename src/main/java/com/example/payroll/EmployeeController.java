@@ -4,7 +4,6 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +15,12 @@ public class EmployeeController {
 
     private final EmployeeRepository repository;
 
-    public EmployeeController(EmployeeRepository repository) {
+    // add EmployeeModelAssembler for EntityModel conversion
+    private final EmployeeModelAssembler assembler;
+
+    public EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
         this.repository = repository;
+        this.assembler = assembler;
     }
 
     @GetMapping("/employees")
@@ -28,7 +31,15 @@ public class EmployeeController {
      */
     CollectionModel<EntityModel<Employee>> all() {
 
-        // Find all entities in repository.
+        // Find all entities in repository. New code using assembler.
+        List<EntityModel<Employee>> employees = repository.findAll().stream()
+            .map(assembler::toModel).collect(Collectors.toList());
+
+        // We have to manually build the aggregate root link
+        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
+
+
+        /* Old code replaced with assembler
         List<EntityModel<Employee>> employees = repository.findAll().stream()
             .map(employee -> EntityModel.of(employee,
                 linkTo(methodOn(EmployeeController.class).one(employee.getId())).withSelfRel(),
@@ -38,9 +49,10 @@ public class EmployeeController {
         return CollectionModel.of(employees,
             linkTo(methodOn(EmployeeController.class).all()).withSelfRel());
 
-//    List<Employee> all() {
-//        return repository.findAll();
-//    }
+       List<Employee> all() {
+               return repository.findAll();
+        }
+        */
     }
 
     @PostMapping("/employees")
@@ -58,15 +70,20 @@ public class EmployeeController {
         Employee employee = repository.findById(id)
             .orElseThrow(() -> new EmployeeNotFoundException(id));
 
+        // replace old code with assembler
+        return assembler.toModel(employee);
+
+        /* Old code before defining assembler.
         return EntityModel.of(employee,
             // Self-link.
             linkTo(methodOn(EmployeeController.class).one(id)).withSelfRel(),
             // Aggregate root link.
             linkTo(methodOn(EmployeeController.class).all()).withRel("employees"));
 
-//  Employee one(@PathVariable Long id) {
-//      return repository.findById(id) .orElseThrow(() -> new  EmployeeNotFoundException(id));
-//  }
+        Employee one(@PathVariable Long id) {
+            return repository.findById(id) .orElseThrow(() -> new  EmployeeNotFoundException(id));
+        }
+        */
 
     }
 

@@ -19,16 +19,38 @@ public class Employee {
     private @Id @GeneratedValue Long id;
     private String name;
     private String role;
+    private String firstName;
+    private String lastName;
+
 
     public Employee(){};
 
-    Employee(String name, String role) {
-        this.name = name;
+    Employee(String firstName, String role, String lastName) {
         this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+    public void setName(String name) {
+        String[] parts = name.split(" ");
+        this.firstName = parts[0];
+        this.lastName = parts[1];
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 
     public void setId(Long id) {
@@ -39,16 +61,16 @@ public class Employee {
         return role;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     @Override
@@ -56,20 +78,21 @@ public class Employee {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
-        return Objects.equals(id, employee.id) && Objects.equals(name, employee.name) && Objects.equals(role, employee.role);
+        return Objects.equals(id, employee.id) && Objects.equals(name, employee.name) && Objects.equals(role, employee.role) && Objects.equals(firstName, employee.firstName) && Objects.equals(lastName, employee.lastName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, role);
+        return Objects.hash(id, name, role, firstName, lastName);
     }
 
     @Override
     public String toString() {
         return "Employee{" +
             "id=" + id +
-            ", name='" + name + '\'' +
             ", role='" + role + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
             '}';
     }
 }
