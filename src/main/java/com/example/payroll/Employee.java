@@ -17,7 +17,7 @@ public class Employee {
      * @GeneratedValue  Primary key is automatically generated value.
      */
     private @Id @GeneratedValue Long id;
-    private String name;
+    //private String name;  (deprecated)
     private String role;
     private String firstName;
     private String lastName;
@@ -25,16 +25,19 @@ public class Employee {
 
     public Employee(){};
 
+    // Removing name and replacing with firstName and lastName
     Employee(String firstName, String role, String lastName) {
         this.role = role;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
+    // A "virtual" getter for the old name property, uses firstName and lastName to produce a value.
     public String getName() {
         return this.firstName + " " + this.lastName;
     }
 
+    // A "virtual" setter for the old name property. Parses incoming string and stores it into proper fields.
     public void setName(String name) {
         String[] parts = name.split(" ");
         this.firstName = parts[0];
@@ -78,12 +81,12 @@ public class Employee {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
-        return Objects.equals(id, employee.id) && Objects.equals(name, employee.name) && Objects.equals(role, employee.role) && Objects.equals(firstName, employee.firstName) && Objects.equals(lastName, employee.lastName);
+        return Objects.equals(id, employee.id) && Objects.equals(role, employee.role) && Objects.equals(firstName, employee.firstName) && Objects.equals(lastName, employee.lastName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, role, firstName, lastName);
+        return Objects.hash(id, role, firstName, lastName);
     }
 
     @Override

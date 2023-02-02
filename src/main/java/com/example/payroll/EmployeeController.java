@@ -2,6 +2,8 @@ package com.example.payroll;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,10 +57,22 @@ public class EmployeeController {
         */
     }
 
+    /**
+     * @ResponseEntity -- used to create an HTTP "201 Created" status message.
+     * @param newEmployee
+     * @return -- a model-based version of the saved object.
+     */
     @PostMapping("/employees")
-    Employee newEmployee(@RequestBody Employee newEmployee) {
-        return repository.save(newEmployee);
+    ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
+
+        EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
+
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+            .body(entityModel);
     }
+
+   // Employee newEmployee(@RequestBody Employee newEmployee) { return repository.save(newEmployee);}
+
 
     @GetMapping("/employee/{id}")
     /**
