@@ -102,22 +102,55 @@ public class EmployeeController {
     }
 
     @PutMapping("/employees/{id}")
-    Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+    ResponseEntity<?> replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
 
-        return repository.findById(id)
-            .map(employee -> {
+        Employee updatedEmployee = repository.findById(id)
+          .map(employee -> {
                 employee.setName(newEmployee.getName());
                 employee.setRole(newEmployee.getRole());
                 return repository.save(employee);
             })
-            .orElseGet(() -> {
-                newEmployee.setId(id);
-                return repository.save(newEmployee);
-            });
+          .orElseGet(() -> {
+              newEmployee.setId(id);
+              return repository.save(newEmployee);
+          });
+
+        // Wrap Employee object from above with EmployeeModelAssembler
+        // converting Employee object to EntityModel<Employee> objects.
+        EntityModel<Employee> entityModel = assembler.toModel(updatedEmployee);
+
+        // getRequiredLink retrieves the Link created by the EmployeeModelAssembler with the SELF
+        // rel. This returns a Link which must be turned into a URI with the toUri method.
+        // The ResponseEntity wrapper provides a Location response header and will throw a 201 created
+        // upon successful PUT request.
+        return ResponseEntity
+            .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+            .body(entityModel);
     }
 
+//    Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+//
+//        return repository.findById(id)
+//            .map(employee -> {
+//                employee.setName(newEmployee.getName());
+//                employee.setRole(newEmployee.getRole());
+//                return repository.save(employee);
+//            })
+//            .orElseGet(() -> {
+//                newEmployee.setId(id);
+//                return repository.save(newEmployee);
+//            });
+//    }
+
+
     @DeleteMapping("/employees/{id}")
-    void deleteEmployee(@PathVariable Long id){
+    ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
         repository.deleteById(id);
+
+        // return a 204 No Content response.
+        return ResponseEntity.noContent().build();
     }
+//    void deleteEmployee(@PathVariable Long id){
+//        repository.deleteById(id);
+//    }
 }
