@@ -14,11 +14,11 @@ public class Order {
     private @Id @GeneratedValue Long id;
 
     private String description;
-    private String status;
+    private Status status;
 
     public Order(){}
 
-    Order(String description, String status) {
+    Order(String description, Status status) {
         this.description = description;
         this.status = status;
     }
@@ -31,8 +31,8 @@ public class Order {
         this.description = description;
     }
 
-    public String getStatus() {
-        return status;
+    public Status getStatus() {
+        return this.status;
     }
 
     public void setId(Long id) {
