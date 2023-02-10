@@ -21,11 +21,30 @@ public class LoadDatabase {
      *                     called on all beans implementing the interface.
      */
     @Bean
-    CommandLineRunner commandLineRunner(EmployeeRepository repository) {
+    CommandLineRunner initDatabase(EmployeeRepository employeeRepository, OrderRepository orderRepository) {
 
         return args -> {
-            log.info("Preloading " + repository.save(new Employee("Bilbo", "Burglar", "Baggins")));
-            log.info("Preloading " + repository.save(new Employee("Frodo", "Thief", "Baggins")));
+
+            employeeRepository.save(new Employee("Bilbo", "burglar", "Baggins"));
+            employeeRepository.save(new Employee("Frodo", "thief", "Baggins"));
+
+            employeeRepository.findAll().forEach(employee -> log.info("Preloaded " + employee));
+
+            orderRepository.save(new Order("MacBook Pro", Status.COMPLETED));
+            orderRepository.save(new Order("iPhone", Status.IN_PROGRESS));
+
+            orderRepository.findAll().forEach(order -> {
+                log.info("Preloaded " + order);
+            });
         };
     }
+
+//@Bean
+//CommandLineRunner commandLineRunner(EmployeeRepository repository) {
+//
+//    return args -> {
+//        log.info("Preloading " + repository.save(new Employee("Bilbo", "Burglar", "Baggins")));
+//        log.info("Preloading " + repository.save(new Employee("Frodo", "Thief", "Baggins")));
+//    };
+//}
 }
